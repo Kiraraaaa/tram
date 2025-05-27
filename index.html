@@ -1,9 +1,55 @@
-<iframe 
-  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2707.813428964798!2d14.31816481561892!3d48.3346615792425!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47739842f0f7469f%3A0xba5e0d70de744b70!2sJKU%20I%20Universit%C3%A4t!5e0!3m2!1sde!2sat!4v1716377341234" 
-  width="600" 
-  height="450" 
-  style="border:0;" 
-  allowfullscreen="" 
-  loading="lazy" 
-  referrerpolicy="no-referrer-when-downgrade">
-</iframe>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>JKU Abfahrtstafel</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      font-size: 14px;
+      margin: 0;
+      padding: 1rem;
+      background: #f5f5f5;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      text-align: left;
+      padding: 4px;
+    }
+    th {
+      background: #004f9f;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <h3>🚋 Abfahrten JKU I Universität</h3>
+  <div id="timetable">Lade Fahrplan …</div>
+
+  <script>
+    async function loadData() {
+      const response = await fetch("https://www.linzag.at/efa2020/XML_DM_REQUEST?language=de&mode=direct&useRealtime=true&type_dm=stop&name_dm=JKU%20I%20Universit%C3%A4t&outputFormat=JSON");
+      const data = await response.json();
+      const departures = data.departureList;
+      let html = "<table><tr><th>Linie</th><th>Richtung</th><th>Abfahrt in</th></tr>";
+      for (let dep of departures.slice(0, 5)) {
+        const line = dep.servingLine.name;
+        const dir = dep.servingLine.direction;
+        const mins = dep.dateTime.countdown;
+        html += `<tr><td>${line}</td><td>${dir}</td><td>${mins} min</td></tr>`;
+      }
+      html += "</table>";
+      document.getElementById("timetable").innerHTML = html;
+    }
+
+    loadData();
+    setInterval(loadData, 30000); // alle 30 Sekunden aktualisieren
+  </script>
+</body>
+</html>
